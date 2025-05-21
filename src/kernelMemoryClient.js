@@ -10,36 +10,65 @@ export class KernelMemoryClient {
   async ask(question, options = {}) {
     const { index = "default", filters = null } = options;
     
+    // Format filters as a dictionary of key-value pairs
+    // If a value is an array, join with " OR " for OR logic
+    const formattedFilters = filters ? Object.entries(filters).reduce((acc, [key, value]) => {
+      if (Array.isArray(value)) {
+        acc[key] = value.join(" OR ");
+      } else {
+        acc[key] = value;
+      }
+      return acc;
+    }, {}) : null;
+
     const requestBody = {
       input: question,
-      //index: index,
-      //filters: filters
+      filters: formattedFilters
     };
 
     console.log("=== KernelMemoryClient ask request ===");
     console.log("URL:", `${this.baseUrl}/ask`);
     console.log("Method: POST");
-    console.log("Headers:", { "Content-Type": "application/json" });
+    console.log("Headers:", { 
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    });
     console.log("Body:", JSON.stringify(requestBody, null, 2));
     console.log("=====================================");
     
-    const res = await fetch(`${this.baseUrl}/ask`, {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      body: JSON.stringify(requestBody),
-    });
+    try {
+      const res = await fetch(`${this.baseUrl}/ask`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(requestBody),
+      });
 
-    if (!res.ok) {
-      const error = await res.text();
-      throw new Error(`Failed to query memory: ${error}`);
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("KernelMemoryClient error response:", {
+          status: res.status,
+          statusText: res.statusText,
+          body: errorText,
+          requestBody: requestBody
+        });
+        throw new Error(`Failed to query memory: ${res.status} ${res.statusText} - ${errorText}`);
+      }
+
+      const data = await res.json();
+      console.log("KernelMemoryClient ask response:", data);
+      
+      if (!data) {
+        return "No relevant memory found.";
+      }
+      
+      return data;
+    } catch (error) {
+      console.error("KernelMemoryClient request failed:", error);
+      throw new Error(`Failed to query memory: ${error.message}`);
     }
-
-    const data = await res.json();
-    console.log("KernelMemoryClient ask data:", data);
-    return data || "No relevant memory found.";
   }
 
   async importTextAsync(text, options = {}) {

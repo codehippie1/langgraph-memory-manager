@@ -8,7 +8,7 @@ const testQueries = [
 
   // Category-based queries
   "What tasks are pending for me to complete?",
-  "Show me the ideas I’ve captured so far.",
+  "Show me the ideas I've captured so far.",
   "What research notes have I saved recently?",
 
   // Content-based queries

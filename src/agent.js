@@ -192,7 +192,67 @@ async function gatherMetadata(state) {
 async function interactWithKM(state) {
   try {
     if (state.intent === "RETRIEVE") {
-      const response = await km.ask(state.messages[state.messages.length - 1]);
+      const query = state.messages[state.messages.length - 1];
+      
+      // Extract all metadata fields from query
+      const metadataPrompt = `Extract metadata from the following query if it exists. If a field is not mentioned, return null for that field.
+      Query: ${query}
+      
+      Extract these fields:
+      - location: A specific place (e.g., "coffee shop", "train", "office", "home", "park", "airport")
+      - category: One of ["personal", "work", "idea", "task", "meeting", "research", "project", "learning"]
+      - type: Either "note" or "link"
+      - secrecy: One of ["public", "private", "confidential", "restricted"]
+      - date: A date in MM-DD-YYYY format
+      
+      Respond with a JSON object containing only the fields that were mentioned in the query.
+      Example response for "What tasks do I have at the office?":
+      {
+        "location": "office",
+        "category": "task"
+      }
+      
+      Example response for "Show me confidential research from last week":
+      {
+        "category": "research",
+        "secrecy": "confidential"
+      }
+      
+      If no metadata is found, respond with an empty object {}.
+      
+      IMPORTANT: Respond with ONLY the JSON object, no other text or formatting.`;
+      
+      const metadataResponse = await llm.invoke(metadataPrompt);
+      let extractedMetadata = {};
+      
+      try {
+        // Clean the response to ensure it's valid JSON
+        const cleaned = metadataResponse.content
+          .replace(/^json\s*/i, '') // Remove "json" prefix if present
+          .replace(/^```json\s*/i, '') // Remove ```json prefix if present
+          .replace(/```$/g, '') // Remove ``` suffix if present
+          .trim();
+        
+        console.log("Cleaned metadata response:", cleaned);
+        
+        if (cleaned && cleaned !== '{}') {
+          extractedMetadata = JSON.parse(cleaned);
+        }
+      } catch (error) {
+        console.error("Error parsing extracted metadata:", error);
+        console.error("Raw metadata response:", metadataResponse.content);
+      }
+      
+      console.log("=== Memory Retrieval ===");
+      console.log("Query:", query);
+      console.log("Extracted metadata:", extractedMetadata);
+      
+      // Create filters from extracted metadata
+      const filters = Object.keys(extractedMetadata).length > 0 ? 
+        extractedMetadata : 
+        null;
+      
+      const response = await km.ask(query, { filters });
       return { ...state, response: response };
     } else if (state.intent === "STORE") {
       // Create documentId from tags
@@ -233,7 +293,6 @@ async function interactWithKM(state) {
       console.log("Content:", uploadPayload.content);
       console.log("DocumentId:", documentId);
       console.log("Tags:", JSON.stringify(tags, null, 2));
-      //console.log("Steps:", ["split", "embed"]);
       console.log("============================");
       
       if (!uploadPayload.content) {
@@ -246,16 +305,16 @@ async function interactWithKM(state) {
       await km.importTextAsync(uploadPayload.content, {
         documentId: documentId,
         index: "default",
-        tags: tags,
-        //steps: ["split", "embed"]
+        tags: tags
       });
 
       return { 
         ...state, 
-        response: `Memory stored successfully! Document ID: ${documentId}` 
+        response: `Memory stored successfully with ID: ${documentId}` 
       };
     }
   } catch (error) {
+    console.error("Error in interactWithKM:", error);
     return { 
       ...state, 
       response: `Error: ${error.message}` 

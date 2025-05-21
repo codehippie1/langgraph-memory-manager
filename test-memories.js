@@ -2,40 +2,40 @@ import fetch from 'node-fetch';
 
 const testQueries = [
   // Location-based queries
-  "What memories do I have from the coffee shop?",
-  "Show me all memories from the train",
-  "What did I save while at home?",
-  
+  "What memories did I save while I was at the coffee shop?",
+  "Do I have any saved notes from the train rides?",
+  "Which memories were created at home?",
+
   // Category-based queries
-  "What tasks do I need to do?",
-  "Show me all my ideas",
-  "What research have I saved?",
-  
+  "What tasks are pending for me to complete?",
+  "Show me the ideas I’ve captured so far.",
+  "What research notes have I saved recently?",
+
   // Content-based queries
-  "What do I know about Kernel Memory?",
-  "Show me memories about LangGraph",
-  "What did I save about vector databases?",
-  
+  "What do I know about Microsoft Kernel Memory?",
+  "What memories reference LangGraph or LangChain?",
+  "Have I saved anything about vector databases like Pinecone?",
+
   // Time-based queries
-  "What memories do I have from October 4th?",
-  "Show me memories from last week",
-  
+  "Do I have any memories from October 4th?",
+  "Which notes did I save last week?",
+
   // Combined queries
-  "What tasks do I have at the office?",
-  "Show me confidential memories from meetings",
-  "What research did I do on the train?",
-  
+  "Which tasks are tagged with the office as their location?",
+  "Do I have confidential memories related to meetings?",
+  "What research did I collect while commuting on the train?",
+
   // Specific memory queries
-  "What was the startup idea I had?",
-  "What's the book John recommended?",
-  "When is my water bill due?"
+  "What was the AI startup idea I wrote down?",
+  "Which book did John recommend about human memory?",
+  "When is my water bill due and how much is it?"
 ];
 
 async function testQuery(query) {
   try {
     console.log(`\nTesting query: "${query}"`);
     console.log('---');
-    
+
     const response = await fetch('http://localhost:3000/chat', {
       method: 'POST',
       headers: {
@@ -53,14 +53,13 @@ async function testQuery(query) {
 
 async function runTests() {
   console.log('Starting memory retrieval tests...\n');
-  
+
   for (const query of testQueries) {
     await testQuery(query);
-    // Add a small delay between requests
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
-  
+
   console.log('\nFinished running tests!');
 }
 
-runTests(); 
+runTests();

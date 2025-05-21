@@ -39,7 +39,7 @@ export class KernelMemoryClient {
 
     const data = await res.json();
     console.log("KernelMemoryClient ask data:", data);
-    return data.result || "No relevant memory found.";
+    return data || "No relevant memory found.";
   }
 
   async importTextAsync(text, options = {}) {

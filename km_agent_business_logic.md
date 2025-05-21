@@ -1,6 +1,6 @@
 # 🧠 Kernel Memory Agent – Business Logic
 
-This LangChain.js + Node.js application is designed to act as a smart interface between a user and a locally running Kernel Memory (KM) service at `http://127.0.0.1:9001/`.
+This LangChain.js + Node.js application is designed to act as a smart interface between a user and a locally running Kernel Memory (KM) service at `http://127.0.0.1:5000/`.
 
 The app uses LangChain agents to:
 1. Detect user **intent**.
@@ -23,7 +23,7 @@ The application identifies whether the user's intent is to:
 If the user's intent is to retrieve something:
 1. Ensure the query is clear and self-contained (e.g., "What did I save about LLMs in March?" or "Show me notes from NYC").
 2. If the query is ambiguous, **ask for clarification**.
-3. Once clear, call: http://127.0.0.1:9001/ask
+3. Once clear, call: http://127.0.0.1:5000/chat
 4. Display the response to the user.
 
 ---
@@ -39,7 +39,7 @@ If the user wants to save a memory:
 
 2. Once all required details are collected:
    - Format the content (e.g., prepend metadata)
-   - Call: http://127.0.0.1:9001/upload
+   - Call: http://127.0.0.1:5000/chat
 3. Confirm back to the user that the memory was stored.
 
 ---

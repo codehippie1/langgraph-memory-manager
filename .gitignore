@@ -1,20 +1,23 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
 # Environment variables
 .env
 .env.local
 .env.*.local
 
-# Dependencies
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-package-lock.json
-yarn.lock
-
 # Build output
 dist/
 build/
-out/
+*.tsbuildinfo
+lib/
+es/
+cjs/
 
 # IDE and editor files
 .idea/
@@ -22,22 +25,34 @@ out/
 *.swp
 *.swo
 .DS_Store
-Thumbs.db
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
 
 # Logs
 logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Testing
 coverage/
+.nyc_output/
 .nyc_output/
 
 # Temporary files
 tmp/
 temp/
+_tmp/
+tmp-*/
 
 # Debug
 .debug/
+.npm
+.eslintcache
+.stylelintcache
 
 # Azure specific
 .azure/ 
